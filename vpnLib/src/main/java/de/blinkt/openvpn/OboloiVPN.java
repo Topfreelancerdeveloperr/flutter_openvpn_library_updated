@@ -104,13 +104,18 @@ public class OboloiVPN extends Activity {
         }
     }
 
-    public void isServiceRunning() {
-        setStatus(vpnService.getStatus());
+    public String getServiceStatus() {
+       return vpnService.getStatus();
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if(activity == null  || activity.isDestroyed() || activity.isFinishing()){
+                listener = null;
+                if( activity != null)
+                LocalBroadcastManager.getInstance(activity).unregisterReceiver(broadcastReceiver);
+            }
             try {
                 setStatus(intent.getStringExtra("state"));
             } catch (Exception e) {
@@ -150,7 +155,7 @@ public class OboloiVPN extends Activity {
             }
             if (listener != null) listener.onVPNStatusChanged(connectionState);
         }else{
-            Log.d("Null connection status" , "Failed to get con status");
+
         }
 
     }
