@@ -34,7 +34,7 @@ public class OboloiVPN extends Activity {
 
     public OboloiVPN(Activity activity) {
         OboloiVPN.activity = activity;
-        activity.registerReceiver(broadcastReceiver, new IntentFilter("connectionState"));
+        activity.getApplicationContext().registerReceiver(broadcastReceiver, new IntentFilter("connectionState"));
         VpnStatus.initLogCache(activity.getCacheDir());
     }
 
