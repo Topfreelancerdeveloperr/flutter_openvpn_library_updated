@@ -125,10 +125,10 @@ public class OboloiVPN extends Activity {
                 String byteIn = intent.getStringExtra("byteIn");
                 String byteOut = intent.getStringExtra("byteOut");
 
-                if (duration.equals(null)) duration = "00:00:00";
-                if (lastPacketReceive.equals(null)) lastPacketReceive = "0";
-                if (byteIn.equals(null)) byteIn = " ";
-                if (byteOut.equals(null)) byteOut = " ";
+                if (duration == null) duration = "00:00:00";
+                if (lastPacketReceive == null) lastPacketReceive = "0";
+                if (byteIn == null) byteIn = " ";
+                if (byteOut == null) byteOut = " ";
                 updateConnectionStatus(duration, lastPacketReceive, byteIn, byteOut);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -151,7 +151,7 @@ public class OboloiVPN extends Activity {
             }
             if (listener != null) listener.onVPNStatusChanged(connectionState);
         }else{
-            Log.e("Null connection status" , "Failed to get con status");
+            Log.d("Null connection status" , "Failed to get con status");
         }
 
     }
