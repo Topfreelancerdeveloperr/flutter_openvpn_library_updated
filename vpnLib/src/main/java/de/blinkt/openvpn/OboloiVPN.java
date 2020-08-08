@@ -35,6 +35,10 @@ public class OboloiVPN extends Activity {
         LocalBroadcastManager.getInstance(activity).registerReceiver(broadcastReceiver, new IntentFilter("connectionState"));
     }
 
+    public OboloiVPN(){
+
+    }
+
     public void setOnVPNStatusChangeListener(OnVPNStatusChangeListener listener) {
         OboloiVPN.listener = listener;
     }
