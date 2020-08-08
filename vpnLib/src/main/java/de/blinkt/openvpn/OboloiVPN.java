@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 
 import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.OpenVPNThread;
+import de.blinkt.openvpn.core.VpnStatus;
 
 public class OboloiVPN extends Activity {
     private static Activity activity;
@@ -33,7 +34,8 @@ public class OboloiVPN extends Activity {
 
     public OboloiVPN(Activity activity) {
         OboloiVPN.activity = activity;
-        LocalBroadcastManager.getInstance(activity).registerReceiver(broadcastReceiver, new IntentFilter("connectionState"));
+        activity.registerReceiver(broadcastReceiver, new IntentFilter("connectionState"));
+        VpnStatus.initLogCache(activity.getCacheDir());
     }
 
     public OboloiVPN(){
