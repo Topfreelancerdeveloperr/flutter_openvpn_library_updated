@@ -60,6 +60,7 @@ import java.util.Vector;
 
 import de.blinkt.openvpn.DisconnectVPNActivity;
 import de.blinkt.openvpn.LaunchVPN;
+import de.blinkt.openvpn.OboloiVPN;
 import de.blinkt.openvpn.R;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.api.ExternalAppDatabase;
@@ -1428,10 +1429,17 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     //sending message to main activity
     private void sendMessage(String state) {
+        if(OboloiVPN.activity == null || OboloiVPN.activity.isDestroyed()){
+
+        }
         Intent intent = new Intent("connectionState");
         intent.putExtra("state", state);
         this.state = state;
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        if(OboloiVPN.activity == null || OboloiVPN.activity.isDestroyed()){
+            OboloiVPN.listener = null;
+            return;
+        }
+        OboloiVPN.activity.sendBroadcast(intent);
     }
     //sending message to main activity
     private void sendMessage(String duration, String lastPacketReceive, String byteIn, String byteOut) {
@@ -1440,7 +1448,11 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         intent.putExtra("lastPacketReceive", lastPacketReceive);
         intent.putExtra("byteIn", byteIn);
         intent.putExtra("byteOut", byteOut);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        if(OboloiVPN.activity == null || OboloiVPN.activity.isDestroyed()){
+            OboloiVPN.listener = null;
+            return;
+        }
+        OboloiVPN.activity.sendBroadcast(intent);
     }
     public class LocalBinder extends Binder {
         public OpenVPNService getService() {

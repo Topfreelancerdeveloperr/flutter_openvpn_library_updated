@@ -23,8 +23,8 @@ import de.blinkt.openvpn.core.OpenVPNThread;
 import de.blinkt.openvpn.core.VpnStatus;
 
 public class OboloiVPN extends Activity {
-    private static Activity activity;
-    private static OnVPNStatusChangeListener listener;
+    public static Activity activity;
+    public static OnVPNStatusChangeListener listener;
     private static OpenVPNThread vpnThread = new OpenVPNThread();
     private static OpenVPNService vpnService = new OpenVPNService();
     private static String ovpnFileContent;
@@ -34,7 +34,6 @@ public class OboloiVPN extends Activity {
 
     public OboloiVPN(Activity activity) {
         OboloiVPN.activity = activity;
-        activity.getApplicationContext().registerReceiver(broadcastReceiver, new IntentFilter("connectionState"));
         VpnStatus.initLogCache(activity.getCacheDir());
     }
 
@@ -44,6 +43,7 @@ public class OboloiVPN extends Activity {
 
     public void setOnVPNStatusChangeListener(OnVPNStatusChangeListener listener) {
         OboloiVPN.listener = listener;
+        activity.registerReceiver(broadcastReceiver, new IntentFilter("connectionState"));
     }
 
     public void launchVPN(String ovpnFileContent,String expireAt){
@@ -113,11 +113,7 @@ public class OboloiVPN extends Activity {
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(activity == null  || activity.isDestroyed() || activity.isFinishing()){
-                listener = null;
-                if( activity != null)
-                LocalBroadcastManager.getInstance(activity).unregisterReceiver(broadcastReceiver);
-            }
+            Log.e("connection intent" , "from openvpn");
             try {
                 setStatus(intent.getStringExtra("state"));
             } catch (Exception e) {
