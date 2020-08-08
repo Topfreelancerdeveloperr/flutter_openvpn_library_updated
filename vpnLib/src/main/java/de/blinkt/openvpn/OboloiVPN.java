@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.VpnService;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.BufferedReader;
@@ -20,27 +22,39 @@ import de.blinkt.openvpn.core.OpenVPNService;
 import de.blinkt.openvpn.core.OpenVPNThread;
 
 public class OboloiVPN extends Activity {
-    private Activity activity;
-    private OnVPNStatusChangeListener listener;
-    private OpenVPNThread vpnThread = new OpenVPNThread();
-    private OpenVPNService vpnService = new OpenVPNService();
-    private String ovpnFileContent;
-    private String expireAt;
-    boolean vpnStart = false;
+    private static Activity activity;
+    private static OnVPNStatusChangeListener listener;
+    private static OpenVPNThread vpnThread = new OpenVPNThread();
+    private static OpenVPNService vpnService = new OpenVPNService();
+    private static String ovpnFileContent;
+    private static String expireAt;
+    private static boolean vpnStart = false;
 
     public OboloiVPN(Activity activity) {
-        this.activity = activity;
+        OboloiVPN.activity = activity;
         LocalBroadcastManager.getInstance(activity).registerReceiver(broadcastReceiver, new IntentFilter("connectionState"));
     }
 
     public void setOnVPNStatusChangeListener(OnVPNStatusChangeListener listener) {
-        this.listener = listener;
+        OboloiVPN.listener = listener;
     }
 
-    public void launchVPN(String ovpnFileContent,String expireAt) {
-        this.ovpnFileContent = ovpnFileContent;
-        this.expireAt = expireAt;
+    public void launchVPN(String ovpnFileContent,String expireAt){
+        OboloiVPN.ovpnFileContent = ovpnFileContent;
+        OboloiVPN.expireAt = expireAt;
         OpenVPNService.expireAt = expireAt;
+        activity.startActivity(new Intent(activity , OboloiVPN.class));
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.launchvpn);
+        launchVPN();
+    }
+
+    private void launchVPN() {
+
         if (!vpnStart) {
                 Intent intent = VpnService.prepare(activity);
 
