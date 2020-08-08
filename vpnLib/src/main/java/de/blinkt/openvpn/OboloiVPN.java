@@ -172,5 +172,7 @@ public class OboloiVPN extends Activity {
         } else {
             if(listener != null) listener.onProfileLoaded(false);
         }
+
+        finish();
     }
 }
