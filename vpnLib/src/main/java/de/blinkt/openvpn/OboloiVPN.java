@@ -29,6 +29,7 @@ public class OboloiVPN extends Activity {
     private static String ovpnFileContent;
     private static String expireAt;
     private static boolean vpnStart = false;
+    private static Intent profileIntent;
 
     public OboloiVPN(Activity activity) {
         OboloiVPN.activity = activity;
@@ -47,7 +48,12 @@ public class OboloiVPN extends Activity {
         OboloiVPN.ovpnFileContent = ovpnFileContent;
         OboloiVPN.expireAt = expireAt;
         OpenVPNService.expireAt = expireAt;
-        activity.startActivity(new Intent(activity , OboloiVPN.class));
+        profileIntent = VpnService.prepare(activity);
+        if(profileIntent != null) {
+            activity.startActivity(new Intent(activity, OboloiVPN.class));
+            return;
+        }
+        if(listener != null) listener.onProfileLoaded(true);
     }
 
     @Override
@@ -58,16 +64,9 @@ public class OboloiVPN extends Activity {
     }
 
     private void launchVPN() {
-
         if (!vpnStart) {
-                Intent intent = VpnService.prepare(activity);
-
-                if (intent != null) {
-                    startActivityForResult(intent, 1);
+                    startActivityForResult(profileIntent, 1);
                     //connecting status
-                }else{
-                    if(listener != null) listener.onProfileLoaded(true);
-                }
         }
     }
 
