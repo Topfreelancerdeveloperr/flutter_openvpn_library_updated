@@ -60,7 +60,6 @@ import java.util.Vector;
 
 import de.blinkt.openvpn.DisconnectVPNActivity;
 import de.blinkt.openvpn.LaunchVPN;
-import de.blinkt.openvpn.OboloiVPN;
 import de.blinkt.openvpn.R;
 import de.blinkt.openvpn.VpnProfile;
 import de.blinkt.openvpn.api.ExternalAppDatabase;
@@ -93,8 +92,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     public static final String EXTRA_CHALLENGE_TXT = "de.blinkt.openvpn.core.CR_TEXT_CHALLENGE";
     public static final String EXTRA_CHALLENGE_OPENURL = "de.blinkt.openvpn.core.OPENURL_CHALLENGE";
 
-    public static final String GLOBAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-
     private static final int PRIORITY_MIN = -2;
     private static final int PRIORITY_DEFAULT = 0;
     private static final int PRIORITY_MAX = 2;
@@ -116,8 +113,6 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private boolean mStarting = false;
     private long mConnecttime;
     private OpenVPNManagement mManagement;
-    public static String expireAt;
-    private Date expireDate;
     /*private final IBinder mBinder = new IOpenVPNServiceInternal.Stub() {
 
         @Override
@@ -608,38 +603,16 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             return START_NOT_STICKY;
         }
 
+
         /* start the OpenVPN process itself in a background thread */
         new Thread(new Runnable() {
             @Override
             public void run() {
                 startOpenVPN();
-                boolean hasExpireDate = false;
-                try {
-                    expireDate = new SimpleDateFormat(GLOBAL_DATE_FORMAT).parse(expireAt);
-                    hasExpireDate = true;
-                }catch (Exception error){
-                    hasExpireDate = false;
-                    String date = expireAt;
-                    if(date == null) date = "null";
-                    Log.e("date is shit in service" , error.toString() + " shitty date : " + date);
-                }
-                if(hasExpireDate)
-                    while (true) {
-                        try {
-                            Thread.sleep(15000);
-                            Date currentTime = Calendar.getInstance().getTime();
-                            if(currentTime.after(expireDate)) {
-                                stopVPN(false);
-                                break;
-                            }
-                        } catch (Exception err) {
-                            Log.e("wtf error", err.toString());
-                            break;
-                        }
-                    }
-
             }
         }).start();
+
+
         ProfileManager.setConnectedVpnProfile(this, mProfile);
         VpnStatus.setConnectedVPNProfile(mProfile.getUUIDString());
 
@@ -1429,30 +1402,44 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     //sending message to main activity
     private void sendMessage(String state) {
-        if(OboloiVPN.activity == null || OboloiVPN.activity.isDestroyed()){
-
-        }
         Intent intent = new Intent("connectionState");
         intent.putExtra("state", state);
         this.state = state;
-        if(OboloiVPN.activity == null || OboloiVPN.activity.isDestroyed()){
-            OboloiVPN.listener = null;
-            return;
-        }
-        OboloiVPN.activity.sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
     //sending message to main activity
+    public static final String GLOBAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private void sendMessage(String duration, String lastPacketReceive, String byteIn, String byteOut) {
         Intent intent = new Intent("connectionState");
         intent.putExtra("duration", duration);
         intent.putExtra("lastPacketReceive", lastPacketReceive);
         intent.putExtra("byteIn", byteIn);
         intent.putExtra("byteOut", byteOut);
-        if(OboloiVPN.activity == null || OboloiVPN.activity.isDestroyed()){
-            OboloiVPN.listener = null;
-            return;
+
+        String lastConnected = ProfileManager.getLastConnectedVpn().mExpireAt;
+        boolean hasExpireDate = false;
+        Date expireDate = null;
+        try {
+            expireDate = new SimpleDateFormat(GLOBAL_DATE_FORMAT).parse(lastConnected);
+            hasExpireDate = true;
+        } catch (Exception error) {
+            hasExpireDate = false;
+            String date = lastConnected;
+            if (date == null) date = "null";
+            Log.e("date is shit in service", error.toString() + " shitty date : " + date);
         }
-        OboloiVPN.activity.sendBroadcast(intent);
+        if (hasExpireDate) {
+            Date currentTime = Calendar.getInstance().getTime();
+            if (currentTime.after(expireDate)) {
+                try{
+                    stopVPN(false);
+                }catch (Exception err){
+
+                }
+            }
+        }
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
     public class LocalBinder extends Binder {
         public OpenVPNService getService() {

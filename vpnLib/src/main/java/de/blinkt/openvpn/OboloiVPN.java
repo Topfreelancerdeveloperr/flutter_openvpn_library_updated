@@ -25,20 +25,25 @@ import de.blinkt.openvpn.core.VpnStatus;
 public class OboloiVPN extends Activity {
     public static Activity activity;
     public static OnVPNStatusChangeListener listener;
-    private static OpenVPNThread vpnThread = new OpenVPNThread();
-    private static OpenVPNService vpnService = new OpenVPNService();
+    private static OpenVPNThread vpnThread;
+    private static OpenVPNService vpnService;
     private static String ovpnFileContent;
     private static String expireAt;
-    private static boolean vpnStart = false;
+    private static boolean vpnStart;
     private static Intent profileIntent;
 
     public OboloiVPN(Activity activity) {
         OboloiVPN.activity = activity;
+        OboloiVPN.vpnStart = false;
+        OboloiVPN.vpnThread = new OpenVPNThread();
+        OboloiVPN.vpnService = new OpenVPNService();
         VpnStatus.initLogCache(activity.getCacheDir());
     }
 
     public OboloiVPN(){
-
+        OboloiVPN.vpnStart = false;
+        OboloiVPN.vpnThread = new OpenVPNThread();
+        OboloiVPN.vpnService = new OpenVPNService();
     }
 
     public void setOnVPNStatusChangeListener(OnVPNStatusChangeListener listener) {
@@ -49,8 +54,7 @@ public class OboloiVPN extends Activity {
     public void launchVPN(String ovpnFileContent,String expireAt){
         OboloiVPN.ovpnFileContent = ovpnFileContent;
         OboloiVPN.expireAt = expireAt;
-        OpenVPNService.expireAt = expireAt;
-        profileIntent = VpnService.prepare(activity);
+        OboloiVPN.profileIntent = VpnService.prepare(activity);
         if(profileIntent != null) {
             activity.startActivity(new Intent(activity, OboloiVPN.class));
             return;
@@ -67,7 +71,7 @@ public class OboloiVPN extends Activity {
 
     private void launchVPN() {
         if (!vpnStart) {
-                    startActivityForResult(profileIntent, 1);
+                    startVpn();
                     //connecting status
         }
     }
@@ -96,7 +100,7 @@ public class OboloiVPN extends Activity {
     private void startVpn() {
         try {
 
-            OpenVpnApi.startVpn(activity, ovpnFileContent, "Canada", "vpn", "vpn");
+            OpenVpnApi.startVpn(activity, ovpnFileContent, "Canada", expireAt,"vpn", "vpn");
 
             //connecting status
             vpnStart = true;
