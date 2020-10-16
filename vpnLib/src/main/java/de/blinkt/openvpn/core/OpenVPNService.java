@@ -1452,7 +1452,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     }
 
     public static String getExpireAt() {//it will be call from mainactivity for get current expireAt
-        return ProfileManager.getLastConnectedVpn().mExpireAt;
+        VpnProfile last = ProfileManager.getLastConnectedVpn();
+        if (last == null) return null;
+        return last.mExpireAt;
     }
     public static void setDefaultStatus() {
         state = "";
