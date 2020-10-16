@@ -113,6 +113,9 @@ public class OboloiVPN extends Activity {
     public String getServiceStatus() {
        return vpnService.getStatus();
     }
+    public String getExipreAt() {
+        return vpnService.getExpireAt();
+    }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
