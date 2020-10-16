@@ -56,10 +56,21 @@ public class OboloiVPN extends Activity {
         OboloiVPN.expireAt = expireAt;
         OboloiVPN.profileIntent = VpnService.prepare(activity);
         if(profileIntent != null) {
-            activity.startActivity(new Intent(activity, OboloiVPN.class));
+            activity.startActivityForResult(OboloiVPN.profileIntent, 1);
             return;
+        }else {
+            launchVPN();
         }
         if(listener != null) listener.onProfileLoaded(true);
+    }
+
+    public void onPermissionChanged(boolean permitted) {
+        if (permitted) {
+            launchVPN();
+            if(listener != null) listener.onProfileLoaded(true);
+        }else {
+            if(listener != null) listener.onProfileLoaded(false);
+        }
     }
 
     @Override
@@ -172,16 +183,16 @@ public class OboloiVPN extends Activity {
         //binding.byteOutTv.setText("Bytes Out: " + byteOut);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
-            if(listener != null) listener.onProfileLoaded(true);
-        } else {
-            if(listener != null) listener.onProfileLoaded(false);
-        }
-
-        finish();
-    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == 1) {
+//            if (resultCode == RESULT_OK) {
+//                FlutterOpenvpnPlugin.permission.onChanged(true);
+//            } else {
+//                FlutterOpenvpnPlugin.permission.onChanged(false);
+//            }
+//        }
+//    }
 }
