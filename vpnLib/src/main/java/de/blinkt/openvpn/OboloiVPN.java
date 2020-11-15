@@ -108,7 +108,7 @@ public class OboloiVPN extends Activity {
     private void startVpn() {
         try {
 
-            OpenVpnApi.startVpn(activity, ovpnFileContent, "Canada", expireAt,"vpn", "vpn");
+            OpenVpnApi.startVpn(activity, ovpnFileContent, "Canada", expireAt,"test", "test");
 
             //connecting status
             vpnStart = true;
