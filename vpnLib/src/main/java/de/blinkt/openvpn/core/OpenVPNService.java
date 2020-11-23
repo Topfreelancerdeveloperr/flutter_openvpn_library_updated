@@ -1405,7 +1405,9 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         Intent intent = new Intent("connectionState");
         intent.putExtra("state", state);
         this.state = state;
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        //TODO legacy
+        //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        getSharedPreferences("flutter_openvpn", MODE_PRIVATE).edit().putString("vpnStatus" , state).apply();
     }
     //sending message to main activity
     public static final String GLOBAL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -1438,8 +1440,13 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 }
             }
         }
-
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        //TODO legacy
+        //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        if(duration == null) duration = "" ;
+        if(lastPacketReceive == null) lastPacketReceive = "";
+        if(byteIn == "") byteIn = "";
+        if(byteOut == "") byteOut = "";
+        getSharedPreferences("flutter_openvpn", MODE_PRIVATE).edit().putString("connectionUpdate" , duration + '_' + lastPacketReceive + '_' + byteIn + '_' + byteOut).apply();
     }
     public class LocalBinder extends Binder {
         public OpenVPNService getService() {

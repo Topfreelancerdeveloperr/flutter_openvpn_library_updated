@@ -50,7 +50,8 @@ public class OboloiVPN extends Activity {
 
     public void setOnVPNStatusChangeListener(OnVPNStatusChangeListener listener) {
         OboloiVPN.listener = listener;
-        LocalBroadcastManager.getInstance(activity).registerReceiver(broadcastReceiver, new IntentFilter("connectionState"));
+        //TODO legacy
+        //LocalBroadcastManager.getInstance(activity).registerReceiver(broadcastReceiver, new IntentFilter("connectionState"));
     }
 
     public void launchVPN(String ovpnFileContent,String expireAt, String user,  String pass){
