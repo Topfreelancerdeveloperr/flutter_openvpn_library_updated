@@ -90,6 +90,8 @@ public class VpnProfile implements Serializable, Cloneable {
     public transient boolean profileDeleted = false;
     public int mAuthenticationType = TYPE_KEYSTORE;
     public String mName;
+    public String mProdileId;
+    public Integer timeOutInSeconds;
     public String mAlias;
     public String mClientCertFilename;
     public String mTLSAuthDirection = "";

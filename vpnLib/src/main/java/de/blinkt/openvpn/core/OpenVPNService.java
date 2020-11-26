@@ -611,6 +611,34 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                 startOpenVPN();
             }
         }).start();
+        final Integer timeOutInSeconds = mProfile.timeOutInSeconds;
+        if(timeOutInSeconds != null) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(timeOutInSeconds * 1000);
+                    } catch (Exception e) {
+
+                    }
+                    if (!("CONNECTED".equals(state)) || !("DISCONNECTED".equals(state))) {
+                        try {
+                            sendMessage("TIMEOUT");
+                            try {
+                                Thread.sleep(1000);
+                            } catch (Exception e) {
+
+                            }
+                            stopVPN(false);
+                        }catch (Exception e){
+                            Log.e("stop vpn crash", e.toString() );
+                        }
+                    }
+                }
+            }).start();
+        }else{
+            Log.d("VPNex" , "null timeout");
+        }
 
 
         ProfileManager.setConnectedVpnProfile(this, mProfile);
@@ -1435,9 +1463,14 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
             if (currentTime.after(expireDate)) {
                 try{
                     sendMessage("EXPIRED");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+
+                    }
                     stopVPN(false);
                 }catch (Exception err){
-
+                    Log.e("stop vpn crash", err.toString() );
                 }
             }
         }
