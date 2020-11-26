@@ -621,7 +621,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     } catch (Exception e) {
 
                     }
-                    if (!("CONNECTED".equals(state)) || !("DISCONNECTED".equals(state))) {
+                    if (!("CONNECTED".equals(state)) && !("DISCONNECTED".equals(state))) {
                         try {
                             sendMessage("TIMEOUT");
                             try {
