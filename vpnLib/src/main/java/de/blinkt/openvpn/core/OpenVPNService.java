@@ -113,6 +113,8 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     private boolean mStarting = false;
     private long mConnecttime;
     private OpenVPNManagement mManagement;
+    private boolean killTimeOut = false;
+
     /*private final IBinder mBinder = new IOpenVPNServiceInternal.Stub() {
 
         @Override
@@ -519,6 +521,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     @Override
     public boolean stopVPN(boolean replaceConnection) throws RemoteException {
+        killTimeOut = true;
         if (getManagement() != null)
             return getManagement().stopVPN(replaceConnection);
         else
@@ -613,7 +616,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
         }).start();
         final Integer timeOutInSeconds = mProfile.timeOutInSeconds;
         if(timeOutInSeconds != null) {
-            new Thread(new Runnable() {
+             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -629,6 +632,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                             } catch (Exception e) {
 
                             }
+                            if(killTimeOut)  {
+                                Log.d("TIMEOUT", "PREVENTED");
+                                return;
+                            }
                             stopVPN(false);
                         }catch (Exception e){
                             Log.e("stop vpn crash", e.toString() );
@@ -636,6 +643,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
                     }
                 }
             }).start();
+
         }else{
             Log.d("VPNex" , "null timeout");
         }
@@ -786,6 +794,7 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
     @Override
     public void onDestroy() {
         sendMessage("DISCONNECTED");
+        killTimeOut = true;
         synchronized (mProcessLock) {
             if (mProcessThread != null) {
                 mManagement.stopVPN(true);
@@ -1430,6 +1439,10 @@ public class OpenVPNService extends VpnService implements StateListener, Callbac
 
     //sending message to main activity
     private void sendMessage(String state) {
+        if("DISCONNECTED".equals(state)  || "EXPIRED".equals(state) || "EXITED".equals(state) || "NOPROCESS".equals(state) ){
+
+            killTimeOut = true;
+        }
         Intent intent = new Intent("connectionState");
         intent.putExtra("state", state);
         this.state = state;
